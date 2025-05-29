@@ -54,9 +54,8 @@
 
 ## 🛠️ 추천 기술 스택
 
-- **백엔드**: FastAPI (or Django), Claude API 연동
-- **프론트엔드**: Streamlit (MVP), React+HTMX (확장형)
-- **DB**: PostgreSQL or MySQL
+- **백엔드**: Django DRF
+- **DB**: PostgreSQL
 - **외부 연동**: Google Sheets, LinkedIn, 이벤터스, Slack
 
 ---
