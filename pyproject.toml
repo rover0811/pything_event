@@ -1,0 +1,28 @@
+[project]
+name = "pything-backend-with-django-style-guide"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "django>=5.2.1",
+    "djangorestframework>=3.16.0",
+]
+
+[dependency-groups]
+dev = [
+    "factory-boy>=3.3.3",
+    "pytest>=8.3.5",
+    "pytest-django>=4.11.1",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+python_classes = ["Test*", "*Tests"]
+python_functions = ["test_*"]
+addopts = "--tb=short --strict-markers -v"  # --ds 옵션 제거
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests",
+    "django_db: mark test to use django database",  # 추가
+]
