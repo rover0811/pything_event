@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
+from common.services import model_update
+
 if TYPE_CHECKING:
     from users.models import User
 else:
@@ -49,17 +51,9 @@ def user_create(*, email: str, name: str, password: str, referrer_id: Optional[i
 def user_update(*, user: User, data: Dict) -> User:
     updatable_fields = ['name', 'phone', 'company', 'newsletter_subscribed']
 
-    has_updated = False
-    for filed_name in updatable_fields:
-        if filed_name in data:
-            setattr(user, filed_name, data[filed_name])
-            has_updated = True
+    updated_user, has_updated = model_update(instance=user,fields=updatable_fields,data=data)
 
-    if has_updated:
-        user.full_clean()
-        user.save()
-
-    return user
+    return updated_user
 
 
 @transaction.atomic
