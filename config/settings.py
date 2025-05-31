@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'rest_framework',
 
     # Local apps
+    'common',
     'users',  # 이게 있는지 확인!
+    'locations',
 
 ]
 
