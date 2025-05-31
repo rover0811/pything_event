@@ -3,13 +3,12 @@ from re import search
 from django.db.models import QuerySet,Q
 from typing import Optional
 
-from locations.models import Locations
+from locations.models import Location
 
-Locations.objects.mro()
-def location_list(*,filters:Optional[dict] = None) -> QuerySet[Locations]:
+def location_list(*,filters:Optional[dict] = None) -> QuerySet[Location]:
     filters = filters or {}
 
-    qs = Locations.objects.all()
+    qs = Location.objects.all()
 
     if 'search' in filters:
         search_term = filters['search']
@@ -23,14 +22,14 @@ def location_list(*,filters:Optional[dict] = None) -> QuerySet[Locations]:
 
     return qs.order_by('name')
 
-def location_get(*,locations_id:int) -> Locations:
-    return Locations.objects.get(id=locations_id)
+def location_get(*,location_id:int) -> Location:
+    return Location.objects.get(id=location_id)
 
-def location_get_by_name(*,name:str) -> Locations:
-    return Locations.objects.get(name=name)
+def location_get_by_name(*,name:str) -> Location:
+    return Location.objects.get(name=name)
 
-def location_get_suitable_for_participants(*,particpant_count:int) -> QuerySet[Locations]:
-    return Locations.objects.filter(max_capacity__gte=particpant_count).order_by('max_capacity','name')
+def location_get_suitable_for_participants(*,participant_count:int) -> QuerySet[Location]:
+    return Location.objects.filter(max_capacity__gte=participant_count).order_by('max_capacity', 'name')
 
 
 

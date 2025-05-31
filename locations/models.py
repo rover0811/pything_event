@@ -4,12 +4,12 @@ from django.core.exceptions import ValidationError
 from common.models import BaseModel
 
 
-class Locations(BaseModel):
+class Location(BaseModel):
     name = models.CharField(max_length=100, unique=True, verbose_name='장소명')
     address = models.TextField(verbose_name='주소')  # CharField랑 TextField의 차이?
     description = models.TextField(blank=True, verbose_name="장소 설명")
     max_capacity = models.PositiveIntegerField(verbose_name="최대 수용인원")
-    objects: 'models.Manager[Locations]' = models.Manager()
+    objects: 'models.Manager[Location]' = models.Manager()
 
     class Meta:  # 얘는 역할이 뭘까?
         verbose_name = "장소"

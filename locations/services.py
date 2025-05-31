@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from common.services import model_update
-from locations.models import Locations
+from locations.models import Location
 
 if TYPE_CHECKING:
     from locations.models import Location
@@ -14,11 +14,11 @@ else:
 
 
 @transaction.atomic
-def location_create(*,name:str,address:str,max_capacity:int,description:str)-> Locations:
-    if Locations.objects.filter(name=name).exists(): # 이렇게 하는 이유가 뭐지?
+def location_create(*,name:str,address:str,max_capacity:int,description:str="")-> Location:
+    if Location.objects.filter(name=name).exists(): # 이렇게 하는 이유가 뭐지?
         raise ValidationError(f"'{name}' 장소가 이미 존재합니다.")
 
-    location = Locations(name=name,address=address,max_capacity=max_capacity,description=description) # 이렇게 지정해줘야하는 이유가 뭐지
+    location = Location(name=name, address=address, max_capacity=max_capacity, description=description) # 이렇게 지정해줘야하는 이유가 뭐지
 
     location.full_clean()
     location.save()
@@ -26,7 +26,7 @@ def location_create(*,name:str,address:str,max_capacity:int,description:str)-> L
     return location
 
 @transaction.atomic
-def location_update(*,location:Locations,data:Dict)-> Locations:
+def location_update(*, location:Location, data:Dict)-> Location:
 
     updatable_fields = ['name', 'address', 'description', 'max_capacity'] # 이런 식으로 지정하는게 보안 상 중요
 
