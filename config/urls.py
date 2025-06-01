@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),  # users URL 추가
     path('api/locations/', include('locations.urls')),  # locations URL 추가
+    path('api/presentations/', include('presentations.urls')),
 ]
