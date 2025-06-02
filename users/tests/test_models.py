@@ -72,6 +72,9 @@ class TestUserModel:
         referrer = RegularMemberFactory()
         user = UserFactory.build(referrer=referrer)
 
+        # password 설정 (AbstractUser 상속으로 인한 필수 필드)
+        user.set_password('testpass123')
+
         # 예외 발생하지 않아야 함
         user.full_clean()
         assert user.referrer == referrer

@@ -1,5 +1,5 @@
 """
-User 셀렉터 테스트
+User 셀렉터 테스트 - 수정된 버전
 """
 import pytest
 from django.contrib.auth import get_user_model
@@ -56,16 +56,15 @@ class TestUserListSelector:
 
         assert search_results.count() == 2
 
-    def test_user_list_filter_has_referrer(self):
-        """추천인 유무 필터링"""
-        UserWithReferrerFactory.create_batch(2)
-        UserFactory.create_batch(3)  # 추천인 없음
-
+    def test_user_list_filter_has_referrer_debug(self):
+        """추천인 유무 필터링 - 디버깅 버전"""
+        with_referrer_users = UserWithReferrerFactory.create_batch(2)
+        without_referrer_users = UserFactory.create_batch(3)
         users_with_referrer = user_list(filters={'has_referrer': True})
         users_without_referrer = user_list(filters={'has_referrer': False})
 
-        assert users_with_referrer.count() == 2
-        assert users_without_referrer.count() == 3
+        assert users_with_referrer.count() == 2, f"기대값: 2, 실제값: {users_with_referrer.count()}"
+        assert users_without_referrer.count() == 5, f"기대값: 5, 실제값: {users_without_referrer.count()}" # 3 + 2 (추천인들)
 
 
 @pytest.mark.django_db

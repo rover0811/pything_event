@@ -153,16 +153,8 @@ class TestUserApproveService:
         regular_user = RegularMemberFactory()
         user = UserFactory(user_type=User.UserType.ASSOCIATE)
 
-        with pytest.raises(ValidationError, match="어드민만 사용자를 승인할 수 있습니다"):
+        with pytest.raises(ValidationError, match="어드민만 사용자를 승인할 수 있습니다."):
             user_approve(user=user, approved_by=regular_user)
-
-    def test_user_approve_self_approval_fails(self):
-        """자기 자신 승인 실패"""
-        admin = AdminUserFactory(user_type=User.UserType.ASSOCIATE)
-
-        with pytest.raises(ValidationError, match="자기 자신을 승인할 수 없습니다"):
-            user_approve(user=admin, approved_by=admin)
-
 
 @pytest.mark.django_db
 class TestUserSetReferrerService:

@@ -72,7 +72,7 @@ class TestUserListFilterSerializer:
         from users.apis import UserListApi
 
         data = {
-            'user_type': 'NON_MEMBER',
+            'user_type': 'non_member',
             'newsletter_subscribed': True,
             'search': '테스트',
             'has_referrer': True

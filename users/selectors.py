@@ -24,7 +24,7 @@ def user_list(*,filters:Optional[dict]=None) -> QuerySet[User]:
         search_term = filters['search']
         qs = qs.filter(
             Q(name__icontains=search_term) |
-            Q(email_icontains=search_term) |
+            Q(email__icontains=search_term) |
             Q(company__icontains=search_term)
         )
     if 'has_referrer' in filters:

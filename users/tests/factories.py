@@ -1,4 +1,3 @@
-# users/tests/factories.py - 임시로 간단화
 import factory
 from factory.django import DjangoModelFactory
 from django.contrib.auth import get_user_model
@@ -31,4 +30,15 @@ class AdminUserFactory(UserFactory):
 
 
 class AssociateMemberFactory(UserFactory):
+    user_type = User.UserType.ASSOCIATE
+
+
+class RegularMemberFactory(UserFactory):
+    """정회원 팩토리 - 누락된 팩토리 추가"""
+    user_type = User.UserType.REGULAR
+
+
+class UserWithReferrerFactory(UserFactory):
+    """추천인이 있는 사용자 팩토리 - 누락된 팩토리 추가"""
+    referrer = factory.SubFactory(RegularMemberFactory)
     user_type = User.UserType.ASSOCIATE
