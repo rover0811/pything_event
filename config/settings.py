@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'common',
     'users',  # 이게 있는지 확인!
     'locations',
-    'presentations'
+    'presentations',
+    'events',
 ]
 
 MIDDLEWARE = [
