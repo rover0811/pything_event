@@ -3,7 +3,6 @@ from rest_framework import viewsets, permissions
 from events.models import Event, EventRegistration
 from events.serializers import EventSerializer, EventRegistrationSerializer
 
-# Create your views here.
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()

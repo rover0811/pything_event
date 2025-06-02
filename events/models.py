@@ -2,9 +2,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from users.models import User
 from locations.models import Location
+from common.models import BaseModel
 
-
-class Event(models.Model):
+class Event(BaseModel):
     class Status(models.TextChoices):
         PLANNING = 'PLANNING', _('계획중')
         IN_PROGRESS = 'IN_PROGRESS', _('진행중')
@@ -35,8 +35,6 @@ class Event(models.Model):
         verbose_name=_('생성자'),
         related_name='created_events'
     )
-    created_at = models.DateTimeField(_('생성일'), auto_now_add=True)
-    updated_at = models.DateTimeField(_('수정일'), auto_now=True)
 
     class Meta:
         verbose_name = _('이벤트')
