@@ -121,14 +121,61 @@ class PresentationComment(BaseModel):
         null=True,
         blank=True
     )
-    guest_name = models.CharField(max_length=100, default='Anonymous', blank=True)
+    guest_name = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text='비회원 댓글 작성자명'
+    )
 
     class Meta:
         ordering = ['-created_at']
 
+    def clean(self):
+        """데이터 정리 및 검증"""
+        super().clean()
+
+        if self.user:
+            # 회원 댓글인 경우: guest_name 비우기
+            self.guest_name = ''
+        else:
+            # 비회원 댓글인 경우: guest_name이 없으면 Anonymous 설정
+            if not self.guest_name:
+                self.guest_name = 'Anonymous'
+
     @property
     def author_name(self):
+        """작성자명 반환"""
         return self.user.name if self.user else (self.guest_name or 'Anonymous')
 
+    @property
+    def is_member_comment(self):
+        """회원 댓글 여부"""
+        return self.user is not None
+
+    def can_edit(self, user):
+        """수정 권한 확인"""
+        if not user or not user.is_authenticated:
+            return False
+        # 회원 댓글만 수정 가능하고, 본인만 수정 가능
+        return self.is_member_comment and self.user == user
+
+    def can_delete(self, user):
+        """삭제 권한 확인"""
+        if not user or not user.is_authenticated:
+            return False
+
+        # 어드민은 모든 댓글 삭제 가능
+        if hasattr(user, 'user_type') and user.user_type == User.UserType.ADMIN:
+            return True
+
+        # 회원 댓글은 본인만 삭제 가능
+        return self.is_member_comment and self.user == user
+
+    def save(self, *args, **kwargs):
+        # 저장 전에 clean 실행
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.author_name}: {self.content[:50]}"
+        comment_type = "회원" if self.is_member_comment else "비회원"
+        return f"[{comment_type}] {self.author_name}: {self.content[:50]}"

@@ -101,19 +101,19 @@ class PresentationViewSet(viewsets.ModelViewSet):
 
 
 class PresentationCommentViewSet(viewsets.ModelViewSet):
-    queryset = PresentationComment.objects.all()
+    queryset = PresentationComment.objects.select_related('user', 'presentation')
     serializer_class = PresentationCommentSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny]  # 누구나 조회/생성 가능
 
     def perform_update(self, serializer):
+        """수정 권한 확인"""
         comment = self.get_object()
-        if not comment.user or comment.user != self.request.user:
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("회원 댓글만 수정 가능하고, 본인 댓글만 수정할 수 있습니다.")
+        if not comment.can_edit(self.request.user):
+            raise PermissionDenied("수정 권한이 없습니다.")
         serializer.save()
 
     def perform_destroy(self, instance):
-        if not instance.user or instance.user != self.request.user:
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("회원 댓글만 삭제 가능하고, 본인 댓글만 삭제할 수 있습니다.")
+        """삭제 권한 확인"""
+        if not instance.can_delete(self.request.user):
+            raise PermissionDenied("삭제 권한이 없습니다.")
         instance.delete()
