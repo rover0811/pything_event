@@ -14,14 +14,13 @@ class TestPresentationCommentSerializer:
         from presentations.tests.factories import GuestCommentFactory
 
         comment = GuestCommentFactory(
-            guest_name="익명",
             content="테스트 댓글"
         )
 
         serializer = PresentationCommentSerializer(comment)
         data = serializer.data
 
-        assert data['author_name'] == "익명"
+        assert data['author_name'] == "Anonymous"
         assert data['content'] == "테스트 댓글"
         assert data['user'] is None
 
@@ -51,7 +50,6 @@ class TestPresentationCommentSerializer:
         data = {
             'presentation': presentation.id,
             'content': '비회원 댓글',
-            'guest_name': '익명사용자'
         }
 
         serializer = PresentationCommentSerializer(
@@ -63,7 +61,7 @@ class TestPresentationCommentSerializer:
         comment = serializer.save()
 
         assert comment.content == '비회원 댓글'
-        assert comment.guest_name == '익명사용자'
+        assert comment.guest_name == 'Anonymous'
         assert comment.user is None
 
     def test_create_member_comment(self):

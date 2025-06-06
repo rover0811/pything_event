@@ -33,14 +33,14 @@ class TestPresentationCommentViewSet:
         data = {
             'presentation': presentation.id,
             'content': '비회원 댓글입니다',
-            'guest_name': '익명사용자'
+            'guest_name': 'Anonymous'
         }
 
         response = api_client.post(url, data)
 
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data['content'] == '비회원 댓글입니다'
-        assert response.data['author_name'] == '익명사용자'
+        assert response.data['author_name'] == 'Anonymous'
         assert response.data['user'] is None
 
     def test_guest_create_comment_without_name(self, api_client):
