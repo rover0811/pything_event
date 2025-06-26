@@ -177,15 +177,89 @@ erDiagram
 
 ---
 
-## 시작하기
+## 🚀 개발 환경 설정 (Development Setup)
 
-1. 저장소 클론 및 의존성 설치
-2. `.env` 환경변수 설정 (DB, Claude API 등)
-3. `uvicorn main:app --reload` 또는 `streamlit run app.py` 실행
+### 사전 요구사항
+- Python 3.11+
+- Node.js 및 npm
 
----
+### 1. 저장소 클론
+```bash
+git clone https://github.com/rover0811/pything_event.git
+cd pything_event/django_event_platform
+```
 
-## 문의/기여
+### 2. Python 가상환경 및 의존성 설치
+Python 가상환경을 생성하고 필요한 패키지를 설치합니다.
+
+```bash
+# Python 가상환경 생성
+python -m venv .venv
+
+# 가상환경 활성화 (macOS/Linux)
+source .venv/bin/activate
+# 가상환경 활성화 (Windows)
+# .venv\\Scripts\\activate
+
+# pip 최신 버전으로 업그레이드
+pip install --upgrade pip
+
+# pyproject.toml 기반으로 의존성 설치
+pip install -e ".[dev]"
+```
+
+### 3. Frontend 의존성 설치
+Tailwind CSS를 위한 Node.js 패키지를 설치합니다.
+
+```bash
+npm install
+```
+
+### 4. 데이터베이스 마이그레이션
+개발용 데이터베이스(SQLite)를 생성하고 초기화합니다.
+
+```bash
+python manage.py migrate
+```
+
+### 5. 개발 서버 실행
+두 개의 터미널을 열고 각각 다음 명령어를 실행합니다.
+
+**터미널 1: Django 개발 서버**
+```bash
+python manage.py runserver
+```
+이제 브라우저에서 `http://127.0.0.1:8000` 로 접속할 수 있습니다.
+
+**터미널 2: Tailwind CSS 빌드**
+템플릿 파일의 변경 사항을 감지하여 CSS를 자동으로 빌드합니다.
+```bash
+npx tailwindcss -i ./static/css/globals.css -o ./static/css/tailwind.css --watch
+```
+> **Note**: `tailwind.config.js` 파일이 없어 기본적인 명령어를 제공합니다. 프로젝트 설정에 맞게 입력/출력 경로를 수정해야 할 수 있습니다.
+
+
+## ⚙️ 환경 변수
+`.env` 파일을 사용하여 환경 변수를 관리하는 것을 권장합니다. 프로젝트 루트에 `.env` 파일을 생성하고 아래 내용을 필요에 맞게 수정하세요.
+
+```env
+# .env.example
+
+# Django Secret Key (프로덕션 환경에서는 반드시 변경하세요)
+SECRET_KEY="your-super-secret-key"
+
+# 데이터베이스 설정 (PostgreSQL 예시)
+# DB_ENGINE=django.db.backends.postgresql
+# DB_NAME=your_db_name
+# DB_USER=your_db_user
+# DB_PASSWORD=your_db_password
+# DB_HOST=localhost
+# DB_PORT=5432
+```
+`config/settings.py` 파일에서 `python-decouple` 등의 라이브러리를 사용하여 환경 변수를 불러오도록 수정해야 합니다.
+
+
+##  문의/기여
 
 - 이슈/기여 환영!
-- 문의: rover0811@hotmail.com 
+- 문의: rover0811@hotmail.com

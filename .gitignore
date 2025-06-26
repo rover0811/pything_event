@@ -150,6 +150,5 @@ GitHub.sublime-settings
 
 presentations/2025/*
 presentations/tests/*
-**/migrations/
 
 .idea/*
