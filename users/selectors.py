@@ -23,7 +23,7 @@ def user_list(*,filters:Optional[dict]=None) -> QuerySet[User]:
     if 'search' in filters:
         search_term = filters['search']
         qs = qs.filter(
-            Q(name__icontains=search_term) |
+            Q(username__icontains=search_term) |
             Q(email__icontains=search_term) |
             Q(company__icontains=search_term)
         )

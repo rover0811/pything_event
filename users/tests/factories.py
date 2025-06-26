@@ -10,7 +10,7 @@ class UserFactory(DjangoModelFactory):
         model = User
 
     email = factory.Sequence(lambda n: f"user{n}@example.com")
-    username = factory.LazyAttribute(lambda obj: obj.email)
+    username = factory.Faker('user_name')
     name = factory.Faker('name')
     user_type = User.UserType.NON_MEMBER
     newsletter_subscribed = False

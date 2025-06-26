@@ -21,20 +21,20 @@ class TestUserModel:
 
         assert user.id is not None
         assert user.email
-        assert user.name
+        assert user.username
         assert user.user_type == User.UserType.NON_MEMBER
         assert not user.newsletter_subscribed
 
     def test_user_string_representation(self):
         """__str__ 메서드 테스트"""
-        user = UserFactory(name="김테스트", email="test@example.com")
+        user = UserFactory(username="김테스트", email="test@example.com")
 
         expected = "김테스트 (test@example.com)"
         assert str(user) == expected
 
     def test_user_full_display_name_property(self):
         """full_display_name 속성 테스트"""
-        user = UserFactory(name="김테스트", email="test@example.com")
+        user = UserFactory(username="김테스트", email="test@example.com")
 
         expected = "김테스트 (test@example.com)"
         assert user.full_display_name == expected
@@ -83,6 +83,6 @@ class TestUserModel:
         """USERNAME_FIELD가 email인지 확인"""
         assert User.USERNAME_FIELD == 'email'
 
-    def test_required_fields_contains_name(self):
-        """REQUIRED_FIELDS에 name이 포함되는지 확인"""
-        assert 'name' in User.REQUIRED_FIELDS
+    def test_required_fields_contains_username(self):
+        """REQUIRED_FIELDS에 username이 포함되는지 확인"""
+        assert 'username' in User.REQUIRED_FIELDS

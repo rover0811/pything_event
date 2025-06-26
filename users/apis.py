@@ -21,7 +21,7 @@ class UserCreateApi(APIView):
 
     class InputSerializer(serializers.Serializer):
         email = serializers.EmailField()
-        name = serializers.CharField(max_length=100)
+        username = serializers.CharField(max_length=100)
         password = serializers.CharField(min_length=8)
         phone = serializers.CharField(max_length=20, required=False)
         company = serializers.CharField(max_length=100, required=False)
@@ -31,7 +31,7 @@ class UserCreateApi(APIView):
     class OutputSerializer(serializers.Serializer):
         id = serializers.IntegerField()
         email = serializers.EmailField()
-        name = serializers.CharField()
+        username = serializers.CharField()
         user_type = serializers.CharField()
         date_joined = serializers.DateTimeField()
 
@@ -65,11 +65,11 @@ class UserListApi(APIView):
     class OutputSerializer(serializers.Serializer):
         id = serializers.IntegerField()
         email = serializers.EmailField()
-        name = serializers.CharField()
+        username = serializers.CharField()
         company = serializers.CharField()
         user_type = serializers.CharField()
         newsletter_subscribed = serializers.BooleanField()
-        referrer_name = serializers.CharField(source='referrer.name', allow_null=True)
+        referrer_username = serializers.CharField(source='referrer.username', allow_null=True)
         date_joined = serializers.DateTimeField()
 
     def get(self, request):
@@ -91,17 +91,15 @@ class UserDetailApi(APIView):
     class OutputSerializer(serializers.Serializer):
         id = serializers.IntegerField()
         email = serializers.EmailField()
-        name = serializers.CharField()
+        username = serializers.CharField()
         phone = serializers.CharField()
         company = serializers.CharField()
         user_type = serializers.CharField()
         newsletter_subscribed = serializers.BooleanField()
-        referrer_name = serializers.CharField(source='referrer.name', allow_null=True)
-        approved_by_name = serializers.CharField(source='approved_by.name', allow_null=True)
+        referrer_username = serializers.CharField(source='referrer.username', allow_null=True)
+        approved_by_username = serializers.CharField(source='approved_by.username', allow_null=True)
         date_joined = serializers.DateTimeField()
         updated_at = serializers.DateTimeField()
-
-        # 모델 속성도 직렬화 가능
         is_approved_member = serializers.BooleanField()
         full_display_name = serializers.CharField()
 
@@ -118,14 +116,14 @@ class UserUpdateApi(APIView):
     permission_classes = [IsAuthenticated]
 
     class InputSerializer(serializers.Serializer):
-        name = serializers.CharField(max_length=100, required=False)
+        username = serializers.CharField(max_length=100, required=False)
         phone = serializers.CharField(max_length=20, required=False)
         company = serializers.CharField(max_length=100, required=False)
         newsletter_subscribed = serializers.BooleanField(required=False)
 
     class OutputSerializer(serializers.Serializer):
         id = serializers.IntegerField()
-        name = serializers.CharField()
+        username = serializers.CharField()
         phone = serializers.CharField()
         company = serializers.CharField()
         newsletter_subscribed = serializers.BooleanField()
@@ -161,7 +159,7 @@ class UserApproveApi(APIView):
         name = serializers.CharField()
         email = serializers.EmailField()
         user_type = serializers.CharField()
-        approved_by_name = serializers.CharField(source='approved_by.name')
+        approved_by_username = serializers.CharField(source='approved_by.username')
 
     def post(self, request, user_id):
         if request.user.user_type != User.UserType.ADMIN:
@@ -192,7 +190,7 @@ class UserPendingApprovalListApi(APIView):
         name = serializers.CharField()
         email = serializers.EmailField()
         company = serializers.CharField()
-        referrer_name = serializers.CharField(source='referrer.name', allow_null=True)
+        referrer_username = serializers.CharField(source='referrer.username', allow_null=True)
         date_joined = serializers.DateTimeField()
         waiting_days = serializers.SerializerMethodField()
 

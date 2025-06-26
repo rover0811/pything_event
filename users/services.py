@@ -13,14 +13,13 @@ else:
 
 
 @transaction.atomic
-def user_create(*, email: str, name: str, password: str, referrer_id: Optional[int] = None, **kwargs) -> User:
+def user_create(*, email: str, username: str, password: str, referrer_id: Optional[int] = None, **kwargs) -> User:
     if User.objects.filter(email=email).exists():
         raise ValidationError('이미 존재하는 이메일입니다.')
 
     user = User(
         email=email,
-        username=email,
-        name=name,
+        username=username,
         phone=kwargs.get('phone', ''),
         company=kwargs.get('company', ''),
         newsletter_subscribed=kwargs.get('newsletter_subscribed', False)
@@ -47,7 +46,7 @@ def user_create(*, email: str, name: str, password: str, referrer_id: Optional[i
 
 @transaction.atomic
 def user_update(*, user: User, data: Dict) -> User:
-    updatable_fields = ['name', 'phone', 'company', 'newsletter_subscribed']
+    updatable_fields = ['username', 'phone', 'company', 'newsletter_subscribed']
     updated_user, has_updated = model_update(instance=user, fields=updatable_fields, data=data)
     return updated_user
 

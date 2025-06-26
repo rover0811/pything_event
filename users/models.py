@@ -11,7 +11,7 @@ class User(AbstractUser):
         ADMIN = 'admin', '어드민'
     email = models.EmailField(unique=True)
 
-    name = models.CharField(max_length=100)
+    username = models.CharField(max_length=100, unique=True)
     phone = models.CharField(max_length=20, blank=True)
     company = models.CharField(max_length=100, blank=True)
     user_type = models.CharField(
@@ -30,8 +30,8 @@ class User(AbstractUser):
     newsletter_subscribed = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name']
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
 
     def clean(self):
         """모델 검증 - 간단한 비관계형 필드 검증만"""
@@ -49,7 +49,7 @@ class User(AbstractUser):
     @property
     def full_display_name(self) -> str:
         """간단한 파생 값"""
-        return f"{self.name} ({self.email})"
+        return f"{self.username} ({self.email})"
 
     def __str__(self):
         return self.full_display_name
