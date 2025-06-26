@@ -147,3 +147,9 @@ GitHub.sublime-settings
 !.vscode/launch.json
 !.vscode/extensions.json
 .history
+
+presentations/2025/*
+presentations/tests/*
+**/migrations/
+
+.idea/*
