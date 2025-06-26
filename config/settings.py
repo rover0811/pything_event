@@ -41,16 +41,18 @@ INSTALLED_APPS = [
 
     # Third party apps
     'rest_framework',
+    'corsheaders',
 
     # Local apps
     'common',
-    'users',  # 이게 있는지 확인!
+    'users',
     'locations',
     'presentations',
     'events',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -65,7 +67,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -113,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = "UTC"
 
@@ -126,8 +128,40 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
-
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# REST Framework 설정
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+}
+
+# CORS 설정 (Next.js 연동용)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Next.js 개발 서버
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True  # 세션 쿠키 허용
+
+# CSRF 설정
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# 세션 설정
+SESSION_COOKIE_AGE = 86400  # 24시간
+SESSION_COOKIE_SECURE = False  # 개발환경용, 프로덕션에서는 True
+SESSION_COOKIE_HTTPONLY = True  # XSS 보호
+SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF 보호

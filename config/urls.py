@@ -17,9 +17,15 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from common import views as common_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', common_views.home, name='home'),
+    path('about/', common_views.about, name='about'),
+    path('posts/', common_views.posts, name='posts'),
+    path('events/', common_views.events, name='events'),
+    path('people/', common_views.people, name='people'),
     path('api/users/', include('users.urls')),  # users URL 추가
     path('api/locations/', include('locations.urls')),  # locations URL 추가
     path('api/presentations/', include('presentations.urls')),
