@@ -104,7 +104,7 @@ class Presentation(BaseModel):
         return 0.0
 
     def __str__(self):
-        return f"{self.title} - {self.presenter.name}"
+        return f"{self.title} - {self.presenter.username}"
 
 
 class PresentationComment(BaseModel):
@@ -145,7 +145,7 @@ class PresentationComment(BaseModel):
     @property
     def author_name(self):
         """작성자명 반환"""
-        return self.user.name if self.user else (self.guest_name or 'Anonymous')
+        return self.user.username if self.user else (self.guest_name or 'Anonymous')
 
     @property
     def is_member_comment(self):
