@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}About - PyThing{% endblock %}
+
+{% block navbar %}{% include "navbar.html" %}{% endblock %}
+
+{% block content %}
+<div class="container py-12">
+    <div class="flex flex-col items-center justify-center space-y-4 text-center">
+        <h1 class="text-3xl font-bold tracking-tighter sm:text-5xl">About PyThing</h1>
+        <p class="max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+            Learn about our academic club, our history, and our mission.
+        </p>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2 lg:gap-12 mt-12">
+        <div>
+            <h2 class="text-2xl font-bold mb-4">Our Story</h2>
+            <div class="space-y-4 text-muted-foreground">
+                <p>
+                    PyThing was founded in 2025 by a group of four passionate Python developers who wanted to create a community where they could share knowledge, collaborate on projects, and grow together as professionals.
+                </p>
+                <p>
+                    The name "PyThing" reflects our roots in Python programming, though we've since expanded our focus to cover various aspects of computer science and software development. The "Thing" in our name represents our commitment to exploring and creating new things with technology.
+                </p>
+                <p>
+                    What started as informal meetups in a university classroom has grown into a vibrant academic club with dozens of members from diverse backgrounds, all united by a passion for learning and innovation.
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center justify-center">
+            <img src="{% static 'images/logo.png' %}" alt="PyThing Team" width="400" height="400" class="rounded-lg object-cover" />
+        </div>
+    </div>
+
+    <div class="mt-16">
+        <h2 class="text-2xl font-bold mb-8 text-center">Our Values</h2>
+        <div class="grid gap-6 md:grid-cols-3">
+            <div class="rounded-lg border bg-white p-6">
+                <h3 class="text-xl font-semibold mb-2">Continuous Learning</h3>
+                <p>
+                    We believe in the power of lifelong learning. Technology evolves rapidly, and we're committed to staying at the forefront by continuously expanding our knowledge and skills.
+                </p>
+            </div>
+            <div class="rounded-lg border bg-white p-6">
+                <h3 class="text-xl font-semibold mb-2">Knowledge Sharing</h3>
+                <p>
+                    We value the open exchange of ideas and information. Through our seminars, newsletters, and collaborative projects, we create opportunities for members to share their expertise and learn from one another.
+                </p>
+            </div>
+            <div class="rounded-lg border bg-white p-6">
+                <h3 class="text-xl font-semibold mb-2">Innovation</h3>
+                <p>
+                    We encourage creative thinking and problem-solving. By exploring new technologies and approaches, we aim to push boundaries and contribute to the advancement of computer science.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-16">
+        <h2 class="text-2xl font-bold mb-8 text-center">Our Activities</h2>
+        <div class="grid gap-6 md:grid-cols-2">
+            <div class="rounded-lg border bg-white p-6">
+                <h3 class="text-xl font-semibold mb-2">Seminars</h3>
+                <p>
+                    We host regular seminars where members research topics independently and present their findings to the group. These sessions provide valuable opportunities for deep learning and discussion on a wide range of computer science topics.
+                </p>
+            </div>
+            <div class="rounded-lg border bg-white p-6">
+                <h3 class="text-xl font-semibold mb-2">Newsletters</h3>
+                <p>
+                    Our newsletters feature insights, tutorials, and the latest developments in Python and computer science. They serve as a platform for members to share their knowledge with a wider audience and document our collective learning journey.
+                </p>
+            </div>
+            <div class="rounded-lg border bg-white p-6">
+                <h3 class="text-xl font-semibold mb-2">Workshops</h3>
+                <p>
+                    We organize hands-on workshops where members can learn practical skills and apply theoretical knowledge to real-world problems. These sessions are designed to be interactive and collaborative.
+                </p>
+            </div>
+            <div class="rounded-lg border bg-white p-6">
+                <h3 class="text-xl font-semibold mb-2">Projects</h3>
+                <p>
+                    We collaborate on various projects that allow us to apply our skills and explore new technologies. These projects range from open-source contributions to internal tools and experimental applications.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}{% include "footer.html" %}{% endblock %} 

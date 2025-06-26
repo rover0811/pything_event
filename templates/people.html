@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}People - PyThing{% endblock %}
+
+{% block navbar %}{% include "navbar.html" %}{% endblock %}
+
+{% block content %}
+<div class="container py-12">
+  <div class="flex flex-col items-center justify-center space-y-4 text-center">
+    <h1 class="text-3xl font-bold tracking-tighter sm:text-5xl">Our Team</h1>
+    <p class="max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+      Meet the talented individuals behind PyThing.
+    </p>
+  </div>
+
+  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mt-12">
+    {# 반복 데이터: 실제로는 view에서 people 리스트를 context로 넘겨야 함 #}
+    {% for person in people %}
+    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center cursor-pointer hover:shadow-lg transition-shadow">
+      <div class="relative h-24 w-24 rounded-full overflow-hidden mb-4">
+        <img src="{{ person.image|default:'/static/images/placeholder.svg' }}" alt="{{ person.username }}" class="object-cover h-full w-full" />
+      </div>
+      <div class="mt-2 text-center">
+        <div class="text-xl font-bold">{{ person.username }}</div>
+        <div class="text-sm text-muted-foreground mb-2">{{ person.role }}</div>
+        <p class="text-sm line-clamp-3">{{ person.bio }}</p>
+        <div class="flex flex-wrap justify-center gap-2 mt-4">
+          {% for skill in person.expertise|slice:':2' %}
+            <span class="inline-block border rounded px-2 py-1 text-xs">{{ skill }}</span>
+          {% endfor %}
+          {% if person.expertise|length > 2 %}
+            <span class="inline-block border rounded px-2 py-1 text-xs">+{{ person.expertise|length|add:'-2' }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="mt-16">
+    <h2 class="text-2xl font-bold mb-8 text-center">Team Details</h2>
+    <div class="grid gap-8 md:grid-cols-2">
+      {% for person in people %}
+      <div class="bg-background rounded-lg border p-6">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="relative h-16 w-16 rounded-full overflow-hidden">
+            <img src="{{ person.image|default:'/static/images/placeholder.svg' }}" alt="{{ person.username }}" class="object-cover h-full w-full" />
+          </div>
+          <div>
+            <div class="text-xl font-bold">{{ person.username }}</div>
+            <div class="text-sm text-muted-foreground">{{ person.role }}</div>
+          </div>
+        </div>
+        <div class="grid gap-4 py-2">
+          <div>
+            <h3 class="font-medium mb-2">About</h3>
+            <p class="text-sm text-muted-foreground">{{ person.bio }}</p>
+          </div>
+          <div>
+            <h3 class="font-medium mb-2">Expertise</h3>
+            <div class="flex flex-wrap gap-2">
+              {% for skill in person.expertise %}
+                <span class="inline-block border rounded px-2 py-1 text-xs">{{ skill }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          <div>
+            <h3 class="font-medium mb-2">Education</h3>
+            <p class="text-sm text-muted-foreground">{{ person.education }}</p>
+          </div>
+          <div>
+            <h3 class="font-medium mb-2">Projects</h3>
+            <ul class="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+              {% for project in person.projects %}
+                <li>{{ project }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-medium mb-2">Contact</h3>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div><strong>Email:</strong> {{ person.contact.email }}</div>
+              <div><strong>GitHub:</strong> {{ person.contact.github }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block footer %}{% include "footer.html" %}{% endblock %} 
