@@ -123,7 +123,7 @@ class TestEventRegistrationModel:
 
     def test_member_registration(self):
         """회원 등록 테스트"""
-        user = UserFactory(name="김회원", email="member@example.com")
+        user = UserFactory(username="김회원", email="member@example.com")
         registration = MemberEventRegistrationFactory(
             user=user,
             name="김회원",

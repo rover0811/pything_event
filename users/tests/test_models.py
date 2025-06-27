@@ -79,10 +79,10 @@ class TestUserModel:
         user.full_clean()
         assert user.referrer == referrer
 
-    def test_username_field_is_email(self):
-        """USERNAME_FIELD가 email인지 확인"""
-        assert User.USERNAME_FIELD == 'email'
+    def test_username_field_is_username(self):
+        """USERNAME_FIELD가 username인지 확인"""
+        assert User.USERNAME_FIELD == 'username'
 
-    def test_required_fields_contains_username(self):
-        """REQUIRED_FIELDS에 username이 포함되는지 확인"""
-        assert 'username' in User.REQUIRED_FIELDS
+    def test_required_fields_contains_email(self):
+        """REQUIRED_FIELDS에 email이 포함되는지 확인"""
+        assert 'email' in User.REQUIRED_FIELDS

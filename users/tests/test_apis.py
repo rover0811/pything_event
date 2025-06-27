@@ -22,7 +22,7 @@ class TestUserCreateApi:
         url = reverse('users:create')
         data = {
             'email': 'newuser@example.com',  # 고유한 이메일 사용
-            'name': '김테스트',
+            'username': '김테스트',
             'password': 'testpass123',
             'phone': '010-1234-5678'
         }
@@ -31,6 +31,7 @@ class TestUserCreateApi:
 
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data['email'] == 'newuser@example.com'
+        assert response.data['username'] == '김테스트'
         assert User.objects.filter(email='newuser@example.com').exists()
 
     def test_user_create_invalid_email(self, api_client):
@@ -38,7 +39,7 @@ class TestUserCreateApi:
         url = reverse('users:create')
         data = {
             'email': 'invalid-email',
-            'name': '김테스트',
+            'username': '김테스트',
             'password': 'testpass123'
         }
 
@@ -55,7 +56,7 @@ class TestUserCreateApi:
         url = reverse('users:create')
         data = {
             'email': existing_user.email,  # 이미 존재하는 이메일 사용
-            'name': '김테스트',
+            'username': '김테스트',
             'password': 'testpass123'
         }
 
@@ -136,6 +137,7 @@ class TestUserApproveApi:
         associate_user.refresh_from_db()
         assert associate_user.user_type == User.UserType.REGULAR
         assert associate_user.approved_by == admin
+        assert response.data['username'] == associate_user.username
 
 
 # Pytest fixtures

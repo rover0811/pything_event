@@ -11,7 +11,6 @@ class UserFactory(DjangoModelFactory):
 
     email = factory.Sequence(lambda n: f"user{n}@example.com")
     username = factory.Faker('user_name')
-    name = factory.Faker('name')
     user_type = User.UserType.NON_MEMBER
     newsletter_subscribed = False
     is_active = True

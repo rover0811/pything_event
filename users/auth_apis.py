@@ -32,7 +32,7 @@ class LoginApi(APIView):
     permission_classes = [AllowAny]
 
     class InputSerializer(serializers.Serializer):
-        email = serializers.EmailField()
+        username = serializers.CharField()
         password = serializers.CharField()
 
     class OutputSerializer(serializers.Serializer):
@@ -46,11 +46,11 @@ class LoginApi(APIView):
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        email = serializer.validated_data['email']
+        username = serializer.validated_data['username']
         password = serializer.validated_data['password']
 
         # Django의 기본 authenticate 함수 사용
-        user = authenticate(request, username=email, password=password)
+        user = authenticate(request, username=username, password=password)
 
         if user is None:
             return Response(

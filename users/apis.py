@@ -156,7 +156,7 @@ class UserApproveApi(APIView):
     # POST이지만 body 데이터가 없으므로 InputSerializer 없음
     class OutputSerializer(serializers.Serializer):
         id = serializers.IntegerField()
-        name = serializers.CharField()
+        username = serializers.CharField()
         email = serializers.EmailField()
         user_type = serializers.CharField()
         approved_by_username = serializers.CharField(source='approved_by.username')
@@ -174,7 +174,7 @@ class UserApproveApi(APIView):
         # OutputSerializer로 응답 데이터 직렬화
         response_data = {
             **self.OutputSerializer(approved_user).data,
-            'message': f'{approved_user.name}님이 정회원으로 승인되었습니다.'
+            'message': f'{approved_user.username}님이 정회원으로 승인되었습니다.'
         }
 
         return Response(response_data)
@@ -187,7 +187,7 @@ class UserPendingApprovalListApi(APIView):
     # GET이므로 InputSerializer 없음
     class OutputSerializer(serializers.Serializer):
         id = serializers.IntegerField()
-        name = serializers.CharField()
+        username = serializers.CharField()
         email = serializers.EmailField()
         company = serializers.CharField()
         referrer_username = serializers.CharField(source='referrer.username', allow_null=True)

@@ -48,9 +48,9 @@ class TestUserListSelector:
 
     def test_user_list_search_by_name(self):
         """이름으로 검색"""
-        UserFactory(name="김철수")
-        UserFactory(name="이영희")
-        UserFactory(name="박철수")
+        UserFactory(username="김철수")
+        UserFactory(username="이영희")
+        UserFactory(username="박철수")
 
         search_results = user_list(filters={'search': '철수'})
 

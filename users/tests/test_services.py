@@ -20,7 +20,7 @@ class TestUserCreateService:
         """정상적인 유저 생성"""
         user = user_create(
             email="test@example.com",
-            name="김테스트",
+            username="김테스트",
             password="testpass123",
             phone="010-1234-5678",
             company="테스트회사"
@@ -28,7 +28,7 @@ class TestUserCreateService:
 
         assert user.id is not None
         assert user.email == "test@example.com"
-        assert user.name == "김테스트"
+        assert user.username == "김테스트"
         assert user.phone == "010-1234-5678"
         assert user.company == "테스트회사"
         assert user.user_type == User.UserType.NON_MEMBER
@@ -40,7 +40,7 @@ class TestUserCreateService:
 
         user = user_create(
             email="test@example.com",
-            name="김테스트",
+            username="김테스트",
             password="testpass123",
             referrer_id=referrer.id
         )
@@ -55,7 +55,7 @@ class TestUserCreateService:
         with pytest.raises(ValidationError, match="이미 존재하는 이메일입니다"):
             user_create(
                 email="test@example.com",
-                name="김테스트",
+                username="김테스트",
                 password="testpass123"
             )
 
@@ -66,7 +66,7 @@ class TestUserCreateService:
         with pytest.raises(ValidationError, match="비회원은 추천인이 될 수 없습니다"):
             user_create(
                 email="test@example.com",
-                name="김테스트",
+                username="김테스트",
                 password="testpass123",
                 referrer_id=referrer.id
             )
@@ -75,7 +75,7 @@ class TestUserCreateService:
         """뉴스레터 구독 옵션으로 유저 생성"""
         user = user_create(
             email="test@example.com",
-            name="김테스트",
+            username="김테스트",
             password="testpass123",
             newsletter_subscribed=True
         )
@@ -94,36 +94,36 @@ class TestUserUpdateService:
         updated_user = user_update(
             user=user,
             data={
-                'name': '수정된이름',
+                'username': '수정된이름',
                 'phone': '010-9999-9999',
                 'company': '새회사'
             }
         )
 
-        assert updated_user.name == '수정된이름'
+        assert updated_user.username == '수정된이름'
         assert updated_user.phone == '010-9999-9999'
         assert updated_user.company == '새회사'
 
     def test_user_update_partial_data(self):
         """일부 필드만 업데이트"""
-        user = UserFactory(name="원래이름", phone="010-1111-1111")
+        user = UserFactory(username="원래이름", phone="010-1111-1111")
 
         updated_user = user_update(
             user=user,
-            data={'name': '수정된이름'}
+            data={'username': '수정된이름'}
         )
 
-        assert updated_user.name == '수정된이름'
+        assert updated_user.username == '수정된이름'
         assert updated_user.phone == "010-1111-1111"  # 변경되지 않음
 
     def test_user_update_empty_data(self):
         """빈 데이터로 업데이트시 변경 없음"""
-        user = UserFactory(name="원래이름")
-        original_name = user.name
+        user = UserFactory(username="원래이름")
+        original_username = user.username
 
         updated_user = user_update(user=user, data={})
 
-        assert updated_user.name == original_name
+        assert updated_user.username == original_username
 
 
 @pytest.mark.django_db

@@ -11,7 +11,7 @@ class TestPresentationCommentModel:
 
     def test_member_comment_clears_guest_name(self):
         """회원 댓글 생성 시 guest_name이 자동으로 비워짐"""
-        user = UserFactory(name="김개발")
+        user = UserFactory(username="김개발")
         presentation = PresentationFactory()
 
         comment = PresentationComment(
@@ -110,7 +110,7 @@ class TestPresentationCommentModel:
 
     def test_str_representation(self):
         """문자열 표현 테스트"""
-        user = UserFactory(name="김개발")
+        user = UserFactory(username="김개발")
         presentation = PresentationFactory()
 
         # 회원 댓글

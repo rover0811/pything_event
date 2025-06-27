@@ -20,7 +20,7 @@ class TestUserCreateApi:
         url = reverse('users:create')  # 'api:users:create' → 'users:create'
         data = {
             'email': 'test@example.com',
-            'name': '테스트',
+            'username': '테스트',
             'password': 'testpass123',
             'phone': '010-1234-5678',
             'company': '테스트 회사',
@@ -31,7 +31,7 @@ class TestUserCreateApi:
 
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data['email'] == data['email']
-        assert response.data['name'] == data['name']
+        assert response.data['username'] == data['username']
         assert 'id' in response.data
         assert 'date_joined' in response.data
 
@@ -41,7 +41,7 @@ class TestUserCreateApi:
         url = reverse('users:create')  # 'api:users:create' → 'users:create'
         data = {
             'email': 'invalid-email',
-            'name': '테스트',
+            'username': '테스트',
             'password': '123'  # 너무 짧은 비밀번호
         }
 
@@ -118,7 +118,7 @@ class TestUserDetailApi:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['id'] == user.id
         assert response.data['email'] == user.email
-        assert response.data['name'] == user.name
+        assert response.data['username'] == user.username
 
 
 @pytest.mark.django_db
@@ -130,7 +130,7 @@ class TestUserUpdateApi:
         client = APIClient()
         user = UserFactory()
         url = reverse('users:update', kwargs={'user_id': user.id})
-        data = {'name': '새이름'}
+        data = {'username': '새이름'}
 
         response = client.patch(url, data, format='json')
 
@@ -143,7 +143,7 @@ class TestUserUpdateApi:
         client.force_authenticate(user=user)
         url = reverse('users:update', kwargs={'user_id': user.id})
         data = {
-            'name': '새이름',
+            'username': '새이름',
             'phone': '010-9999-8888',
             'company': '새회사'
         }
@@ -151,7 +151,7 @@ class TestUserUpdateApi:
         response = client.patch(url, data, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['name'] == data['name']
+        assert response.data['username'] == data['username']
         assert response.data['phone'] == data['phone']
         assert response.data['company'] == data['company']
 
@@ -162,7 +162,7 @@ class TestUserUpdateApi:
         user2 = UserFactory()
         client.force_authenticate(user=user1)
         url = reverse('users:update', kwargs={'user_id': user2.id})
-        data = {'name': '새이름'}
+        data = {'username': '새이름'}
 
         response = client.patch(url, data, format='json')
 
@@ -199,7 +199,7 @@ class TestUserApproveApi:
 
         assert response.status_code == status.HTTP_200_OK
         assert 'message' in response.data
-        assert response.data['approved_by_name'] == admin.name
+        assert response.data['username'] == user.username
 
 
 @pytest.mark.django_db

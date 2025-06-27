@@ -28,7 +28,7 @@ class TestPresentationCommentSerializer:
         """회원 댓글 직렬화 테스트"""
         from presentations.tests.factories import MemberCommentFactory
 
-        user = UserFactory(name="김개발")
+        user = UserFactory(username="김개발")
         comment = MemberCommentFactory(user=user, content="회원 댓글")
 
         serializer = PresentationCommentSerializer(comment)
@@ -66,7 +66,7 @@ class TestPresentationCommentSerializer:
 
     def test_create_member_comment(self):
         """회원 댓글 생성 테스트"""
-        user = UserFactory(name="김개발")
+        user = UserFactory(username="김개발")
         presentation = PresentationFactory()
 
         # 인증된 요청 시뮬레이션

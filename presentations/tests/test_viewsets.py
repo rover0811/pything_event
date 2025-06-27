@@ -62,7 +62,7 @@ class TestPresentationCommentViewSet:
 
     def test_member_create_comment(self, api_client):
         """회원 댓글 생성"""
-        user = UserFactory(name="김개발")
+        user = UserFactory(username="김개발")
         api_client.force_authenticate(user=user)
         presentation = PresentationFactory()
 
