@@ -81,9 +81,11 @@ class Presentation(BaseModel):
     def clean(self):
         """모델 검증"""
         super().clean()
-
+        # presenter가 없으면 검증하지 않음 (폼 저장 시점에 할당됨)
+        if not self.presenter_id:
+            return
         # 정회원만 발표 신청 가능
-        if self.presenter and self.presenter.user_type != User.UserType.REGULAR:
+        if self.presenter.user_type != User.UserType.REGULAR:
             raise ValidationError('정회원만 발표를 신청할 수 있습니다.')
 
     @property

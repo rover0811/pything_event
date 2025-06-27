@@ -22,4 +22,5 @@ class PresentationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['event'].queryset = Event.objects.all().order_by('-event_date')
-        self.fields['file_url'].required = False 
+        self.fields['file_url'].required = False
+    # presenter는 폼에서 입력받지 않고, 뷰에서 할당합니다. 

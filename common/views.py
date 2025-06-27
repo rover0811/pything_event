@@ -25,7 +25,8 @@ def people(request):
 
 def presentations(request):
     presentations = Presentation.objects.select_related('presenter', 'event').order_by('-created_at')[:10]
-    return render(request, 'presentations.html', {'presentations': presentations})
+    events = Event.objects.order_by('-event_date')
+    return render(request, 'presentations.html', {'presentations': presentations, 'events': events})
 
 def login_view(request):
     error_message = None
@@ -67,4 +68,5 @@ def signup_view(request):
     return render(request, 'login.html', {'login_tab': False, 'error_message': error_message})
 
 def mypage(request):
-    return render(request, 'mypage.html') 
+    my_presentations = Presentation.objects.filter(presenter=request.user).select_related('event').order_by('-created_at')
+    return render(request, 'mypage.html', {'my_presentations': my_presentations}) 

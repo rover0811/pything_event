@@ -1,20 +1,507 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}마이페이지 - PyThing{% endblock %}
+
+{% block navbar %}{% include 'navbar.html' %}{% endblock %}
+
 {% block content %}
-<!-- 내가 쓴 발표글 리스트 -->
-<table>
-  <thead>
-    <tr>
-      <th>제목</th>
-      <th>이벤트</th>
-      <th>날짜</th>
-      <th>상태</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- 발표글 반복 렌더링 -->
-    <!-- 각 발표글 클릭 시 상세 페이지로 이동 -->
-  </tbody>
-</table>
-<!-- TODO: 실제 데이터 바인딩 필요 -->
-{% endblock %} 
+<div class="container py-8 max-w-4xl mx-auto">
+    <!-- 페이지 헤더 -->
+    <div class="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+        <h1 class="text-3xl font-bold tracking-tighter">마이페이지</h1>
+        <p class="max-w-[700px] text-muted-foreground">
+            개인 정보 관리, 발표 현황을 확인하고 계정 설정을 변경하세요.
+        </p>
+    </div>
+
+    <!-- 개인 정보 섹션 -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-6">개인 정보</h2>
+        <div class="grid gap-6 md:grid-cols-2">
+            <!-- 기본 정보 카드 -->
+            <div class="bg-card rounded-lg border p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">기본 정보</h3>
+                    <button id="edit-profile-btn" class="text-primary hover:underline text-sm">편집</button>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-muted-foreground">사용자명:</span>
+                        <span id="display-username" class="font-medium">{{ user.username }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-muted-foreground">이메일:</span>
+                        <span class="font-medium">{{ user.email }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-muted-foreground">전화번호:</span>
+                        <span id="display-phone" class="font-medium">{{ user.phone|default:'미입력' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-muted-foreground">회사:</span>
+                        <span id="display-company" class="font-medium">{{ user.company|default:'미입력' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 회원 정보 카드 -->
+            <div class="bg-card rounded-lg border p-6">
+                <h3 class="text-lg font-semibold mb-4">회원 정보</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-muted-foreground">회원 등급:</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                            {% if user.user_type == 'admin' %}bg-red-100 text-red-800
+                            {% elif user.user_type == 'regular' %}bg-green-100 text-green-800
+                            {% elif user.user_type == 'associate' %}bg-blue-100 text-blue-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ user.get_user_type_display }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-muted-foreground">가입일:</span>
+                        <span class="font-medium">{{ user.date_joined|date:'Y년 m월 d일' }}</span>
+                    </div>
+                    {% if user.referrer %}
+                    <div class="flex justify-between items-center">
+                        <span class="text-muted-foreground">추천인:</span>
+                        <span class="font-medium">{{ user.referrer.username }}</span>
+                    </div>
+                    {% endif %}
+                    {% if user.approved_by %}
+                    <div class="flex justify-between items-center">
+                        <span class="text-muted-foreground">승인자:</span>
+                        <span class="font-medium">{{ user.approved_by.username }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="flex justify-between items-center">
+                        <span class="text-muted-foreground">뉴스레터 구독:</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="newsletter-toggle" class="sr-only peer" {% if user.newsletter_subscribed %}checked{% endif %}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 내 발표 섹션 -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-6">내 발표 관리</h2>
+        <div class="rounded-lg border bg-white shadow-sm">
+            <div class="p-6 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">내 발표 목록</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제목</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이벤트</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">등록일</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for presentation in my_presentations %}
+                        <tr>
+                            <td class="px-6 py-4 font-medium text-gray-900">{{ presentation.title }}</td>
+                            <td class="px-6 py-4 text-gray-600">{{ presentation.event.title }}</td>
+                            <td class="px-6 py-4 text-gray-600">{{ presentation.get_status_display }}</td>
+                            <td class="px-6 py-4 text-gray-600">{{ presentation.created_at|date:'Y-m-d' }}</td>
+                            <td class="px-6 py-4 text-right">
+                                <a href="#" class="inline-block px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-100 transition-colors duration-150">상세</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-muted-foreground">
+                                <div class="flex flex-col items-center space-y-2">
+                                    <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <p>등록된 발표가 없습니다.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 계정 설정 섹션 -->
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-6">계정 설정</h2>
+        <div class="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0">
+            <!-- 비밀번호 변경 -->
+            <div class="bg-card rounded-lg border p-6 md:w-1/2">
+                <h3 class="text-lg font-semibold mb-4">비밀번호 변경</h3>
+                <form id="password-change-form" class="grid gap-4 md:grid-cols-2">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium mb-1">현재 비밀번호</label>
+                        <input type="password" id="current-password" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">새 비밀번호</label>
+                        <input type="password" id="new-password" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">새 비밀번호 확인</label>
+                        <input type="password" id="confirm-password" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                    </div>
+                    <div class="md:col-span-2">
+                        <button type="submit" class="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90">비밀번호 변경</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 알림 설정 -->
+            <div class="bg-card rounded-lg border p-6 md:w-1/2">
+                <h3 class="text-lg font-semibold mb-4">알림 설정</h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-medium">이메일 알림</div>
+                            <div class="text-sm text-muted-foreground">새 이벤트 및 발표 선정 알림</div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-medium">브라우저 알림</div>
+                            <div class="text-sm text-muted-foreground">중요한 업데이트 브라우저 푸시 알림</div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 계정 관리 -->
+    <section class="mb-12">
+        <div class="bg-card rounded-lg border p-6 border-red-200">
+            <h3 class="text-lg font-semibold mb-4 text-red-600">위험 영역</h3>
+            <div>
+                <h4 class="font-medium mb-2">계정 탈퇴</h4>
+                <p class="text-sm text-muted-foreground mb-4">
+                    계정을 탈퇴하면 모든 데이터가 삭제되며 복구할 수 없습니다.
+                </p>
+                <button id="delete-account-btn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">계정 탈퇴</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- 프로필 편집 모달 -->
+<div id="profile-edit-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-card rounded-lg shadow-lg w-full max-w-md mx-4">
+        <div class="flex justify-between items-center border-b px-6 py-4">
+            <h3 class="text-xl font-semibold">프로필 편집</h3>
+            <button id="close-edit-modal" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+        </div>
+        <form id="profile-edit-form" class="p-6 space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">사용자명</label>
+                <input type="text" id="edit-username" class="w-full border border-gray-300 rounded-lg px-3 py-2" value="{{ user.username }}">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">전화번호</label>
+                <input type="text" id="edit-phone" class="w-full border border-gray-300 rounded-lg px-3 py-2" value="{{ user.phone }}">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">회사</label>
+                <input type="text" id="edit-company" class="w-full border border-gray-300 rounded-lg px-3 py-2" value="{{ user.company }}">
+            </div>
+            <div class="flex justify-end gap-2 pt-4">
+                <button type="button" id="cancel-edit" class="px-4 py-2 rounded bg-muted text-foreground hover:bg-muted-foreground/10">취소</button>
+                <button type="submit" class="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// 페이지 로드 시 발표 목록 로드
+document.addEventListener('DOMContentLoaded', function() {
+    loadPresentations();
+});
+
+// 프로필 편집 모달
+document.getElementById('edit-profile-btn').addEventListener('click', function() {
+    document.getElementById('profile-edit-modal').classList.remove('hidden');
+});
+
+document.getElementById('close-edit-modal').addEventListener('click', function() {
+    document.getElementById('profile-edit-modal').classList.add('hidden');
+});
+
+document.getElementById('cancel-edit').addEventListener('click', function() {
+    document.getElementById('profile-edit-modal').classList.add('hidden');
+});
+
+// 프로필 편집 폼 제출
+document.getElementById('profile-edit-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        username: document.getElementById('edit-username').value,
+        phone: document.getElementById('edit-phone').value,
+        company: document.getElementById('edit-company').value,
+    };
+    
+    try {
+        const response = await fetch(`/api/users/{{ user.id }}/update/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            // 화면 업데이트
+            document.getElementById('display-username').textContent = data.username;
+            document.getElementById('display-phone').textContent = data.phone || '미입력';
+            document.getElementById('display-company').textContent = data.company || '미입력';
+            document.getElementById('profile-edit-modal').classList.add('hidden');
+            showNotification('프로필이 성공적으로 업데이트되었습니다.', 'success');
+        } else {
+            showNotification('프로필 업데이트에 실패했습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('오류가 발생했습니다.', 'error');
+    }
+});
+
+// 뉴스레터 구독 토글
+document.getElementById('newsletter-toggle').addEventListener('change', async function() {
+    const isSubscribed = this.checked;
+    
+    try {
+        const response = await fetch(`/api/users/{{ user.id }}/update/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                newsletter_subscribed: isSubscribed
+            })
+        });
+        
+        if (!response.ok) {
+            this.checked = !isSubscribed;
+            showNotification('설정 변경에 실패했습니다.', 'error');
+        } else {
+            showNotification('뉴스레터 구독 설정이 변경되었습니다.', 'success');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        this.checked = !isSubscribed;
+        showNotification('오류가 발생했습니다.', 'error');
+    }
+});
+
+// 발표 목록 로드
+async function loadPresentations() {
+    const tbody = document.getElementById('presentations-tbody');
+    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-muted-foreground">발표 목록을 불러오는 중...</td></tr>';
+    
+    try {
+        const response = await fetch('/api/presentations/?presenter={{ user.id }}');
+        const presentations = await response.json();
+        
+        // 통계 업데이트
+        updatePresentationStats(presentations);
+        
+        if (presentations.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-muted-foreground">등록한 발표가 없습니다.</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = presentations.map(presentation => `
+            <tr>
+                <td class="px-6 py-4">
+                    <div class="font-medium">${presentation.title}</div>
+                    <div class="text-sm text-gray-500">${presentation.description.substring(0, 50)}${presentation.description.length > 50 ? '...' : ''}</div>
+                </td>
+                <td class="px-6 py-4">${presentation.event_title || '-'}</td>
+                <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                        ${getStatusColor(presentation.status)}">
+                        ${getStatusText(presentation.status)}
+                    </span>
+                </td>
+                <td class="px-6 py-4">${new Date(presentation.created_at).toLocaleDateString('ko-KR')}</td>
+                <td class="px-6 py-4 text-right">
+                    <div class="flex justify-end gap-2">
+                        <button class="text-primary hover:underline text-sm" onclick="editPresentation(${presentation.id})">편집</button>
+                        <button class="text-red-600 hover:underline text-sm" onclick="deletePresentation(${presentation.id})">삭제</button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Error:', error);
+        tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-600">발표 목록을 불러오는데 실패했습니다.</td></tr>';
+    }
+}
+
+// 발표 통계 업데이트
+function updatePresentationStats(presentations) {
+    const total = presentations.length;
+    const submitted = presentations.filter(p => p.status === 'submitted').length;
+    const selected = presentations.filter(p => p.status === 'selected').length;
+    const completed = presentations.filter(p => p.status === 'completed').length;
+    
+    document.getElementById('total-presentations').textContent = total;
+    document.getElementById('submitted-presentations').textContent = submitted;
+    document.getElementById('selected-presentations').textContent = selected;
+    document.getElementById('completed-presentations').textContent = completed;
+}
+
+// 발표 필터링
+document.getElementById('presentation-filter').addEventListener('change', function() {
+    const filterValue = this.value;
+    const rows = document.querySelectorAll('#presentations-tbody tr');
+    
+    rows.forEach(row => {
+        if (filterValue === 'all') {
+            row.style.display = '';
+        } else {
+            const statusElement = row.querySelector('.inline-flex');
+            if (statusElement) {
+                const status = statusElement.textContent.trim();
+                const showRow = (
+                    (filterValue === 'submitted' && status === '신청됨') ||
+                    (filterValue === 'selected' && status === '선정됨') ||
+                    (filterValue === 'completed' && status === '완료됨') ||
+                    (filterValue === 'rejected' && status === '거절됨')
+                );
+                row.style.display = showRow ? '' : 'none';
+            }
+        }
+    });
+});
+
+// 비밀번호 변경
+document.getElementById('password-change-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    
+    if (newPassword !== confirmPassword) {
+        showNotification('새 비밀번호가 일치하지 않습니다.', 'error');
+        return;
+    }
+    
+    if (newPassword.length < 8) {
+        showNotification('새 비밀번호는 8자 이상이어야 합니다.', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/auth/change-password/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                current_password: currentPassword,
+                new_password: newPassword,
+                confirm_password: confirmPassword
+            })
+        });
+        
+        if (response.ok) {
+            showNotification('비밀번호가 성공적으로 변경되었습니다.', 'success');
+            this.reset();
+        } else {
+            const data = await response.json();
+            showNotification(data.error || '비밀번호 변경에 실패했습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('오류가 발생했습니다.', 'error');
+    }
+});
+
+// 계정 탈퇴
+document.getElementById('delete-account-btn').addEventListener('click', function() {
+    if (confirm('정말로 계정을 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+        if (confirm('모든 데이터가 삭제됩니다. 계속하시겠습니까?')) {
+            showNotification('계정 탈퇴 기능은 아직 구현되지 않았습니다.', 'info');
+        }
+    }
+});
+
+// 유틸리티 함수들
+function getStatusColor(status) {
+    const colors = {
+        'submitted': 'bg-yellow-100 text-yellow-800',
+        'selected': 'bg-green-100 text-green-800',
+        'completed': 'bg-blue-100 text-blue-800',
+        'rejected': 'bg-red-100 text-red-800'
+    };
+    return colors[status] || 'bg-gray-100 text-gray-800';
+}
+
+function getStatusText(status) {
+    const texts = {
+        'submitted': '신청됨',
+        'selected': '선정됨',
+        'completed': '완료됨',
+        'rejected': '거절됨'
+    };
+    return texts[status] || status;
+}
+
+function editPresentation(id) {
+    window.location.href = `/presentations/${id}/edit/`;
+}
+
+function deletePresentation(id) {
+    if (confirm('이 발표를 삭제하시겠습니까?')) {
+        showNotification('발표 삭제 기능은 아직 구현되지 않았습니다.', 'info');
+    }
+}
+
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+           document.querySelector('meta[name=csrf-token]')?.getAttribute('content') || '';
+}
+
+function showNotification(message, type = 'info') {
+    // 간단한 알림 표시 (실제로는 토스트 라이브러리 사용 권장)
+    const alertClass = {
+        'success': 'alert-success',
+        'error': 'alert-error', 
+        'info': 'alert-info'
+    }[type] || 'alert-info';
+    
+    alert(message); // 임시로 alert 사용, 추후 더 나은 알림 시스템으로 교체
+}
+</script>
+
+<!-- CSRF 토큰 -->
+{% csrf_token %}
+{% endblock %}
+
+{% block footer %}{% include 'footer.html' %}{% endblock %}

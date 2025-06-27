@@ -13,41 +13,173 @@
         </p>
         {% if user.is_authenticated %}
         <!-- 모달 트리거 버튼 -->
-        <button id="openModalBtn" class="mt-4 inline-block px-5 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition">발표 등록</button>
+        <button id="openModalBtn" class="w-32 mt-4 inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 font-medium text-center">
+            <span class="w-full text-center block">발표 등록</span>
+        </button>
         {% endif %}
     </div>
 
     <!-- 발표 등록 모달 -->
-    <div id="presentationModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm hidden">
-      <div class="bg-card rounded-lg shadow-lg w-full max-w-lg mx-4 relative animate-fadeIn">
-        <div class="flex justify-between items-center border-b px-6 py-4">
-          <h3 class="text-xl font-semibold">발표 등록</h3>
-          <button id="closeModalBtn" class="text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none">&times;</button>
-        </div>
-        <div class="p-6">
-          <form id="presentationForm" method="post" enctype="multipart/form-data" action="{% url 'presentation_create' %}">
-            {% csrf_token %}
-            {% include 'presentation_form.html' %}
-            <div class="flex justify-end gap-2 mt-6">
-              <button type="button" id="cancelModalBtn" class="px-4 py-2 rounded bg-muted text-foreground hover:bg-muted-foreground/10">취소</button>
-              <button type="submit" class="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90">저장</button>
+    <div id="presentationModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm opacity-0 invisible transition-all duration-300">
+        <div id="modalContent" class="bg-white rounded-lg shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden transform scale-95 transition-all duration-300">
+            <!-- 모달 헤더 -->
+            <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-primary to-primary/80">
+                <h3 class="text-xl font-semibold text-gray-900">발표 등록</h3>
+                <button id="closeModalBtn" class="text-primary-foreground/70 hover:text-primary-foreground transition-colors duration-200 p-1 rounded-full hover:bg-white/10">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
-          </form>
+            
+            <!-- 모달 바디 -->
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                <form id="presentationForm" method="post" enctype="multipart/form-data" action="{% url 'presentation_create' %}" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- 에러 메시지 표시 영역 -->
+                    <div id="errorMessages" class="hidden bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex">
+                            <svg class="w-5 h-5 text-red-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                            <div id="errorContent" class="text-red-800 text-sm"></div>
+                        </div>
+                    </div>
+
+                    <!-- 발표 제목 -->
+                    <div class="space-y-2">
+                        <label for="id_title" class="block text-sm font-medium text-gray-700">
+                            발표 제목 <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="title" 
+                            id="id_title" 
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-200 placeholder-gray-400"
+                            placeholder="발표 제목을 입력해주세요"
+                        />
+                    </div>
+
+                    <!-- 발표 설명 -->
+                    <div class="space-y-2">
+                        <label for="id_description" class="block text-sm font-medium text-gray-700">
+                            발표 내용 설명 <span class="text-red-500">*</span>
+                        </label>
+                        <textarea 
+                            name="description" 
+                            id="id_description" 
+                            rows="3" 
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-200 placeholder-gray-400 resize-none"
+                            placeholder="발표 내용에 대한 간단한 설명을 입력해주세요"
+                        ></textarea>
+                    </div>
+
+                    <!-- 이벤트 선택 -->
+                    <div class="space-y-2">
+                        <label for="id_event" class="block text-sm font-medium text-gray-700">
+                            이벤트 <span class="text-red-500">*</span>
+                        </label>
+                        <select 
+                            name="event" 
+                            id="id_event" 
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-200 bg-white"
+                        >
+                            <option value="">이벤트를 선택해주세요</option>
+                            {% for event in events %}
+                            <option value="{{ event.id }}">{{ event.title }} ({{ event.event_date }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- 마크다운 내용 -->
+                    <div class="space-y-2">
+                        <label for="id_content_md" class="block text-sm font-medium text-gray-700">
+                            마크다운 내용
+                            <span class="text-gray-500 text-xs ml-1">(선택사항)</span>
+                        </label>
+                        <textarea 
+                            name="content_md" 
+                            id="id_content_md" 
+                            rows="6"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-200 placeholder-gray-400 font-mono text-sm"
+                            placeholder="발표 상세 내용을 마크다운으로 작성하세요
+
+예시:
+# 발표 제목
+## 소개
+- 주요 내용 1
+- 주요 내용 2
+
+## 결론
+마무리 내용..."
+                        ></textarea>
+                    </div>
+
+                    <!-- 파일 업로드 -->
+                    <div class="space-y-2">
+                        <label for="id_file_url" class="block text-sm font-medium text-gray-700">
+                            발표 자료
+                            <span class="text-gray-500 text-xs ml-1">(PDF, PPT, PPTX, 최대 50MB)</span>
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="file" 
+                                name="file_url" 
+                                id="id_file_url" 
+                                accept=".pdf,.ppt,.pptx"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors duration-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                            />
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">
+                            PDF, PowerPoint 파일을 업로드할 수 있습니다. 최대 파일 크기는 50MB입니다.
+                        </p>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- 모달 푸터 -->
+            <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <button 
+                    type="button" 
+                    id="cancelModalBtn" 
+                    class="w-32 px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors duration-200 font-medium text-center justify-center"
+                >
+                    취소
+                </button>
+                <button 
+                    type="submit" 
+                    form="presentationForm"
+                    id="submitBtn"
+                    class="w-32 px-6 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200 font-medium inline-flex items-center justify-center text-center"
+                >
+                    <span id="submitText" class="w-full text-center block">등록하기</span>
+                    <div id="submitSpinner" class="hidden ml-2">
+                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                </button>
+            </div>
         </div>
-      </div>
     </div>
 
+    <!-- 발표 목록 테이블 -->
     <div class="mt-12">
-        <div class="rounded-lg border bg-white">
+        <div class="rounded-lg border bg-white shadow-sm">
             <div class="p-6 border-b">
-                <h2 class="text-xl font-semibold">Recent Presentations</h2>
-                <p class="text-muted-foreground">Browse our latest presentations</p>
+                <h2 class="text-xl font-semibold text-gray-900">Recent Presentations</h2>
+                <p class="text-muted-foreground mt-1">Browse our latest presentations</p>
             </div>
-            <div class="p-6 overflow-x-auto">
+            <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead>
+                    <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[300px]">발표 제목</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">발표 제목</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">발표자</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">날짜</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이벤트</th>
@@ -56,18 +188,25 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         {% for presentation in presentations %}
-                        <tr>
-                            <td class="px-6 py-4 font-medium">{{ presentation.title }}</td>
-                            <td class="px-6 py-4">{{ presentation.presenter.username }}</td>
-                            <td class="px-6 py-4">{{ presentation.event.event_date|date:'F d, Y' }}</td>
-                            <td class="px-6 py-4">{{ presentation.event.title }}</td>
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="px-6 py-4 font-medium text-gray-900">{{ presentation.title }}</td>
+                            <td class="px-6 py-4 text-gray-600">{{ presentation.presenter.username }}</td>
+                            <td class="px-6 py-4 text-gray-600">{{ presentation.event.event_date|date:'F d, Y' }}</td>
+                            <td class="px-6 py-4 text-gray-600">{{ presentation.event.title }}</td>
                             <td class="px-6 py-4 text-right">
-                                <a href="#" class="inline-block px-3 py-1 border rounded hover:bg-gray-100">상세</a>
+                                <a href="#" class="inline-block px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-100 transition-colors duration-150">상세</a>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-muted-foreground">No presentations available.</td>
+                            <td colspan="5" class="px-6 py-8 text-center text-muted-foreground">
+                                <div class="flex flex-col items-center space-y-2">
+                                    <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <p>등록된 발표가 없습니다.</p>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -77,58 +216,212 @@
     </div>
 </div>
 
-<!-- 모달 동작 JS -->
+<!-- 모달 동작 JavaScript -->
 <script>
-  const openModalBtn = document.getElementById('openModalBtn');
-  const closeModalBtn = document.getElementById('closeModalBtn');
-  const cancelModalBtn = document.getElementById('cancelModalBtn');
-  const modal = document.getElementById('presentationModal');
-  if (openModalBtn) {
-    openModalBtn.onclick = () => { modal.classList.remove('hidden'); };
-  }
-  if (closeModalBtn) {
-    closeModalBtn.onclick = () => { modal.classList.add('hidden'); };
-  }
-  if (cancelModalBtn) {
-    cancelModalBtn.onclick = () => { modal.classList.add('hidden'); };
-  }
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('presentationModal');
+    const modalContent = document.getElementById('modalContent');
+    const openBtn = document.getElementById('openModalBtn');
+    const closeBtn = document.getElementById('closeModalBtn');
+    const cancelBtn = document.getElementById('cancelModalBtn');
+    const form = document.getElementById('presentationForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    const submitSpinner = document.getElementById('submitSpinner');
+    const errorMessages = document.getElementById('errorMessages');
+    const errorContent = document.getElementById('errorContent');
 
-  // AJAX 폼 제출
-  document.getElementById('presentationForm')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
-    try {
-      const response = await fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      });
-      if (response.ok) {
-        // 성공: 모달 닫고, 목록 새로고침
-        modal.classList.add('hidden');
-        window.location.reload();
-      } else {
-        // 에러: 폼 에러 메시지 표시 (폼 HTML을 다시 받아서 교체)
-        const html = await response.text();
-        // 모달 내 폼 영역만 교체
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const newForm = doc.querySelector('#presentationForm');
-        if (newForm) {
-          document.getElementById('presentationForm').replaceWith(newForm);
-        } else {
-          // fallback: 전체 내용 교체
-          document.querySelector('#presentationModal .p-6').innerHTML = html;
-        }
-      }
-    } catch (err) {
-      alert('서버 오류가 발생했습니다.');
+    // 모달 열기
+    function openModal() {
+        modal.classList.remove('opacity-0', 'invisible');
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }, 10);
+        document.body.style.overflow = 'hidden';
     }
-  });
+
+    // 모달 닫기
+    function closeModal() {
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('opacity-0', 'invisible');
+            document.body.style.overflow = '';
+            clearErrors();
+            form.reset();
+        }, 300);
+    }
+
+    // 에러 메시지 지우기
+    function clearErrors() {
+        errorMessages.classList.add('hidden');
+        errorContent.innerHTML = '';
+        // 개별 필드 에러 스타일 제거
+        document.querySelectorAll('.border-red-500').forEach(el => {
+            el.classList.remove('border-red-500');
+            el.classList.add('border-gray-300');
+        });
+    }
+
+    // 에러 메시지 표시
+    function showErrors(errors) {
+        clearErrors();
+        let errorHtml = '<ul class="list-disc list-inside space-y-1">';
+        
+        for (const [field, messages] of Object.entries(errors)) {
+            // 필드에 에러 스타일 적용
+            const fieldElement = document.querySelector(`[name="${field}"]`);
+            if (fieldElement) {
+                fieldElement.classList.remove('border-gray-300');
+                fieldElement.classList.add('border-red-500');
+            }
+            
+            // 에러 메시지 추가
+            if (Array.isArray(messages)) {
+                messages.forEach(message => {
+                    errorHtml += `<li>${message}</li>`;
+                });
+            } else {
+                errorHtml += `<li>${messages}</li>`;
+            }
+        }
+        
+        errorHtml += '</ul>';
+        errorContent.innerHTML = errorHtml;
+        errorMessages.classList.remove('hidden');
+        
+        // 에러 메시지로 스크롤
+        errorMessages.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // 로딩 상태 설정
+    function setLoading(loading) {
+        if (loading) {
+            submitBtn.disabled = true;
+            submitText.textContent = '등록 중...';
+            submitSpinner.classList.remove('hidden');
+        } else {
+            submitBtn.disabled = false;
+            submitText.textContent = '등록하기';
+            submitSpinner.classList.add('hidden');
+        }
+    }
+
+    // 이벤트 리스너
+    if (openBtn) {
+        openBtn.addEventListener('click', openModal);
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    // 모달 외부 클릭시 닫기
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // ESC 키로 모달 닫기
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !modal.classList.contains('invisible')) {
+            closeModal();
+        }
+    });
+
+    // 폼 제출 처리
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        clearErrors();
+        setLoading(true);
+        
+        const formData = new FormData(form);
+        
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                // 성공: 모달 닫고 페이지 새로고침
+                closeModal();
+                setTimeout(() => {
+                    window.location.reload();
+                }, 300);
+            } else {
+                // 에러 처리
+                const data = await response.json();
+                if (data.errors) {
+                    showErrors(data.errors);
+                } else if (data.error) {
+                    showErrors({ general: [data.error] });
+                } else {
+                    showErrors({ general: ['등록 중 오류가 발생했습니다.'] });
+                }
+            }
+        } catch (error) {
+            console.error('Form submission error:', error);
+            showErrors({ general: ['네트워크 오류가 발생했습니다. 다시 시도해주세요.'] });
+        } finally {
+            setLoading(false);
+        }
+    });
+
+    // 입력 필드 포커스시 에러 스타일 제거
+    document.querySelectorAll('input, textarea, select').forEach(element => {
+        element.addEventListener('focus', function() {
+            if (this.classList.contains('border-red-500')) {
+                this.classList.remove('border-red-500');
+                this.classList.add('border-gray-300');
+            }
+        });
+    });
+});
 </script>
+
+<style>
+/* 애니메이션 추가 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* 스크롤바 스타일링 */
+.overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+</style>
+
 {% endblock %}
 
-{% block footer %}{% include "footer.html" %}{% endblock %} 
+{% block footer %}{% include "footer.html" %}{% endblock %}
