@@ -1,10 +1,15 @@
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.exceptions import PermissionDenied
+from django.views.generic import CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.contrib import messages
+from .forms import PresentationForm
 
 from presentations.models import Presentation, PresentationComment
 from presentations.serializers import PresentationSerializer, PresentationCommentSerializer
@@ -117,3 +122,33 @@ class PresentationCommentViewSet(viewsets.ModelViewSet):
         if not instance.can_delete(self.request.user):
             raise PermissionDenied("삭제 권한이 없습니다.")
         instance.delete()
+
+
+class PresentationCreateView(LoginRequiredMixin, CreateView):
+    model = Presentation
+    form_class = PresentationForm
+    template_name = 'presentation_form.html'
+    success_url = reverse_lazy('presentations')
+
+    def form_valid(self, form):
+        if self.request.user.user_type != User.UserType.REGULAR:
+            form.add_error(None, '정회원만 발표를 신청할 수 있습니다.')
+            return self.form_invalid(form)
+        form.instance.presenter = self.request.user
+        messages.success(self.request, '발표가 성공적으로 등록되었습니다.')
+        # AJAX 요청이면 리다이렉트하지 않고 200 OK만 반환
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            super().form_valid(form)  # 실제 저장
+            return HttpResponse(status=200)
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # AJAX 요청이면 폼 HTML만 반환
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return self.render_to_response(self.get_context_data(form=form))
+        return super().form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = '발표 등록'
+        return context

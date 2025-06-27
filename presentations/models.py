@@ -179,3 +179,7 @@ class PresentationComment(BaseModel):
     def __str__(self):
         comment_type = "회원" if self.is_member_comment else "비회원"
         return f"[{comment_type}] {self.author_name}: {self.content[:50]}"
+
+"""
+발표 등록/수정용 ModelForm은 presentations/forms.py에 구현 예정
+"""

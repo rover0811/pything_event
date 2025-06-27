@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Presentations - PyThing{% endblock %}
+
+{% block navbar %}{% include "navbar.html" %}{% endblock %}
+
+{% block content %}
+<div class="container py-12">
+    <div class="flex flex-col items-center justify-center space-y-4 text-center">
+        <h1 class="text-3xl font-bold tracking-tighter sm:text-5xl">Presentations</h1>
+        <p class="max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+            Explore our presentations and talks.
+        </p>
+        {% if user.is_authenticated %}
+        <!-- 모달 트리거 버튼 -->
+        <button id="openModalBtn" class="mt-4 inline-block px-5 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition">발표 등록</button>
+        {% endif %}
+    </div>
+
+    <!-- 발표 등록 모달 -->
+    <div id="presentationModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm hidden">
+      <div class="bg-card rounded-lg shadow-lg w-full max-w-lg mx-4 relative animate-fadeIn">
+        <div class="flex justify-between items-center border-b px-6 py-4">
+          <h3 class="text-xl font-semibold">발표 등록</h3>
+          <button id="closeModalBtn" class="text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none">&times;</button>
+        </div>
+        <div class="p-6">
+          <form id="presentationForm" method="post" enctype="multipart/form-data" action="{% url 'presentation_create' %}">
+            {% csrf_token %}
+            {% include 'presentation_form.html' %}
+            <div class="flex justify-end gap-2 mt-6">
+              <button type="button" id="cancelModalBtn" class="px-4 py-2 rounded bg-muted text-foreground hover:bg-muted-foreground/10">취소</button>
+              <button type="submit" class="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90">저장</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-12">
+        <div class="rounded-lg border bg-white">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-semibold">Recent Presentations</h2>
+                <p class="text-muted-foreground">Browse our latest presentations</p>
+            </div>
+            <div class="p-6 overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[300px]">발표 제목</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">발표자</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">날짜</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이벤트</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for presentation in presentations %}
+                        <tr>
+                            <td class="px-6 py-4 font-medium">{{ presentation.title }}</td>
+                            <td class="px-6 py-4">{{ presentation.presenter.username }}</td>
+                            <td class="px-6 py-4">{{ presentation.event.event_date|date:'F d, Y' }}</td>
+                            <td class="px-6 py-4">{{ presentation.event.title }}</td>
+                            <td class="px-6 py-4 text-right">
+                                <a href="#" class="inline-block px-3 py-1 border rounded hover:bg-gray-100">상세</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-muted-foreground">No presentations available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 모달 동작 JS -->
+<script>
+  const openModalBtn = document.getElementById('openModalBtn');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const cancelModalBtn = document.getElementById('cancelModalBtn');
+  const modal = document.getElementById('presentationModal');
+  if (openModalBtn) {
+    openModalBtn.onclick = () => { modal.classList.remove('hidden'); };
+  }
+  if (closeModalBtn) {
+    closeModalBtn.onclick = () => { modal.classList.add('hidden'); };
+  }
+  if (cancelModalBtn) {
+    cancelModalBtn.onclick = () => { modal.classList.add('hidden'); };
+  }
+
+  // AJAX 폼 제출
+  document.getElementById('presentationForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+      if (response.ok) {
+        // 성공: 모달 닫고, 목록 새로고침
+        modal.classList.add('hidden');
+        window.location.reload();
+      } else {
+        // 에러: 폼 에러 메시지 표시 (폼 HTML을 다시 받아서 교체)
+        const html = await response.text();
+        // 모달 내 폼 영역만 교체
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const newForm = doc.querySelector('#presentationForm');
+        if (newForm) {
+          document.getElementById('presentationForm').replaceWith(newForm);
+        } else {
+          // fallback: 전체 내용 교체
+          document.querySelector('#presentationModal .p-6').innerHTML = html;
+        }
+      }
+    } catch (err) {
+      alert('서버 오류가 발생했습니다.');
+    }
+  });
+</script>
+{% endblock %}
+
+{% block footer %}{% include "footer.html" %}{% endblock %} 

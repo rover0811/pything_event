@@ -8,9 +8,15 @@
     </a>
     <div class="space-x-4">
       <a href="/about" class="hover:underline">About</a>
-      <a href="/posts" class="hover:underline">Posts</a>
+      <a href="/presentations" class="hover:underline">Presentations</a>
       <a href="/events" class="hover:underline">Events</a>
       <a href="/people" class="hover:underline">People</a>
+      {% if user.is_authenticated %}
+        <a href="/mypage" class="hover:underline">Mypage</a>
+        <a href="/logout" class="hover:underline">Logout</a>
+      {% else %}
+        <a href="/login" class="hover:underline">Login</a>
+      {% endif %}
     </div>
   </div>
 </nav> 

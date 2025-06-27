@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container max-w-xl mx-auto py-10">
+  <h2 class="text-2xl font-bold mb-6">{{ form_title|default:'발표 등록' }}</h2>
+  <form method="post" enctype="multipart/form-data" class="space-y-4 bg-card p-6 rounded-lg shadow">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="text-red-600 mb-2">{{ form.non_field_errors }}</div>
+    {% endif %}
+    <div class="mb-4">
+      {{ form.title.label_tag }}
+      {{ form.title }}
+      {% for error in form.title.errors %}
+        <div class="text-red-600 text-sm">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <div class="mb-4">
+      {{ form.description.label_tag }}
+      {{ form.description }}
+      {% for error in form.description.errors %}
+        <div class="text-red-600 text-sm">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <div class="mb-4">
+      {{ form.content_md.label_tag }}
+      {{ form.content_md }}
+      {% for error in form.content_md.errors %}
+        <div class="text-red-600 text-sm">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <div class="mb-4">
+      {{ form.file_url.label_tag }}
+      {{ form.file_url }}
+      {% for error in form.file_url.errors %}
+        <div class="text-red-600 text-sm">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <div class="mb-4">
+      {{ form.event.label_tag }}
+      {{ form.event }}
+      {% for error in form.event.errors %}
+        <div class="text-red-600 text-sm">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <button type="submit" class="w-full py-2 px-4 bg-primary text-primary-foreground rounded hover:bg-primary/90">저장</button>
+  </form>
+</div>
+{% endblock %} 
